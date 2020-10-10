@@ -34,7 +34,7 @@ The goals / steps of this project are the following:
 [project_video_straight]: ./test_videos/project_video_straight.gif
 [project_video_curve]: ./test_videos/project_video_curve.gif
 
-## [Rubric](https://review.udacity.com/#!/rubrics/571/view) Points
+## [Project Rubric](https://review.udacity.com/#!/rubrics/571/view) Points
 
 In this section, I will consider the rubric points individually and describe how I addressed each point in this implementation.  
 
@@ -148,7 +148,7 @@ Here's a [link to the full video result][video1].
 
 You can also have a preview of the full video watching the following gifs:
 - [Advanced lane finding in a straight road][project_video_straight]
-- [Advanced lane finding in curves][project_video_curves]
+- [Advanced lane finding in curves][project_video_curve]
 ---
 
 ### Discussion
