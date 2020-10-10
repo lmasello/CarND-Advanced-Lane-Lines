@@ -1,19 +1,8 @@
-## Advanced Lane Finding
-[![Udacity - Self-Driving Car NanoDegree](https://s3.amazonaws.com/udacity-sdc/github/shield-carnd.svg)](http://www.udacity.com/drive)
-![Lanes Image](./examples/example_output.jpg)
+# CarND-Advanced-Lane-Lines writeup
 
-In this project, your goal is to write a software pipeline to identify the lane boundaries in a video, but the main output or product we want you to create is a detailed writeup of the project.  Check out the [writeup template](https://github.com/udacity/CarND-Advanced-Lane-Lines/blob/master/writeup_template.md) for this project and use it as a starting point for creating your own writeup.  
-
-Creating a great writeup:
 ---
-A great writeup should include the rubric points as well as your description of how you addressed each point.  You should include a detailed description of the code used in each step (with line-number references and code snippets where necessary), and links to other supporting documents or external references.  You should include images in your writeup to demonstrate how your code works with examples.  
 
-All that said, please be concise!  We're not looking for you to write a book here, just a brief description of how you passed each rubric point, and references to the relevant code :). 
-
-You're not required to use markdown for your writeup.  If you use another method please just submit a pdf of your writeup.
-
-The Project
----
+**Advanced Lane Finding Project**
 
 The goals / steps of this project are the following:
 
@@ -26,14 +15,147 @@ The goals / steps of this project are the following:
 * Warp the detected lane boundaries back onto the original image.
 * Output visual display of the lane boundaries and numerical estimation of lane curvature and vehicle position.
 
-The images for camera calibration are stored in the folder called `camera_cal`.  The images in `test_images` are for testing your pipeline on single frames.  If you want to extract more test images from the videos, you can simply use an image writing method like `cv2.imwrite()`, i.e., you can read the video in frame by frame as usual, and for frames you want to save for later you can write to an image file.  
+[//]: # (Image References)
 
-To help the reviewer examine your work, please save examples of the output from each stage of your pipeline in the folder called `output_images`, and include a description in your writeup for the project of what each image shows.    The video called `project_video.mp4` is the video your pipeline should work well on.  
+[calibration_image_1]: ./output_images/undistorted_chessboard.jpg
+[calibration_image_2]: ./output_images/undistorted_road_image.jpg
+[thresholded_image]: ./output_images/thresholded_image.jpg
+[warped_image]: ./output_images/warped_image.jpg
+[polyfit]: ./output_images/polyfit.jpg
+[projected_radius_and_position_test1]: ./output_images/straight_lines1.jpg
+[projected_radius_and_position_test2]: ./output_images/straight_lines2.jpg
+[projected_radius_and_position_test3]: ./output_images/test1.jpg
+[projected_radius_and_position_test4]: ./output_images/test2.jpg
+[projected_radius_and_position_test5]: ./output_images/test3.jpg
+[projected_radius_and_position_test6]: ./output_images/test4.jpg
+[projected_radius_and_position_test7]: ./output_images/test5.jpg
+[projected_radius_and_position_test8]: ./output_images/test6.jpg
+[video1]: ./project_video.mp4 "Video"
 
-The `challenge_video.mp4` video is an extra (and optional) challenge for you if you want to test your pipeline under somewhat trickier conditions.  The `harder_challenge.mp4` video is another optional challenge and is brutal!
+## [Rubric](https://review.udacity.com/#!/rubrics/571/view) Points
 
-If you're feeling ambitious (again, totally optional though), don't stop there!  We encourage you to go out and take video of your own, calibrate your camera and show us how you would implement this project from scratch!
+In this section, I will consider the rubric points individually and describe how I addressed each point in this implementation.  
 
-## How to write a README
-A well written README file can enhance your project and portfolio.  Develop your abilities to create professional README files by completing [this free course](https://www.udacity.com/course/writing-readmes--ud777).
+---
 
+### Camera Calibration
+
+The code for this step is contained in the first code cell of the IPython notebook located in "./advanced_lane_lines.ipynb", section "Camera calibration matrix and distortion coefficients".  
+
+I started by preparing the "object subspace", which is the (x, y, z) coordinates of the chessboard corners in the world. Here I am assuming the chessboard is fixed on the (x, y) plane at z=0, such that the object points are the same for each calibration image. Every time the library found the chessboard corners in a test image, the object coordinates (i.e., `obj_subspace`) were appended to an array of coordinates called `obj_points`. Furthermore, the (x, y) pixel position of these corners were appended to the 2d points in the image plane, `img_points`. This step has been done with 20 calibration images to achieve good calibration results.
+
+I then used the output `obj_points` and `img_points` to compute the camera calibration and distortion coefficients using the `cv2.calibrateCamera()` function.  This distortion correction was applied with `cv2.undistort()` in the following two notebook cells, the first one to see the distortion correction on a calibration test image, and the other to see this result on an image in the road. Below is the result of the chessboard with distortion correction: 
+
+![alt text][calibration_image_1]
+
+### Pipeline (single images)
+
+#### 1. Has the distortion correction been correctly applied to each image?
+
+To demonstrate this step, I will describe how I apply the distortion correction to one of the test images like this one:
+![alt text][calibration_image_2]
+
+The code to undistort an image is wrapped in a function called `undistort` and is used in the following way: 
+`undistort(img, distortion_mtx, distortion_coeffs)`
+
+Where `img` is the result of `img = plt.imread('test_images/test1.jpg')`.
+
+#### 2. Has a binary image been created using color transforms, gradients or other methods?
+
+The code for the binary transformation is in the section "Thresholded binary image" of the iPython notebook. For this, I used a combination of color and gradient thresholds to generate a binary image. In particular, I applied a threshold on the saturation channel of the image in HLS and a threshold on the sobel operator in the x direction.  Here's an example of my output for this step:
+
+![alt text][thresholded_image]
+
+#### 3. Has a perspective transform been applied to rectify the image?
+
+Similarly to the previous sections, the code for the perspective transform is in its respective section, the "Perspective transform" section of the iPython notebook. 
+
+The code basically consists of a function called `warper()` that takes an image, source, and destination points, and returns the warped image. To select the source and destination points, I followed the steps below:
+1) Extract the lane lines pixels from the test_image manually observing the pixel lane lines from the picture.
+2) Draw the polygon in the picture
+2) Fine-tuned the resulting polygon with slight corrections. 
+
+As a result, the code looks like this:
+
+```python
+src = np.float32([
+    [190, img.shape[0]],
+    [550, 480],
+    [735, 480],
+    [1120, img.shape[0]]
+])
+dst = np.float32([
+    [int(img.shape[1] // 4), img.shape[0]],
+    [int(img.shape[1] // 4), 0],
+    [int(img.shape[1] - img.shape[1] // 4), 0],
+    [int(img.shape[1] - img.shape[1] // 4), img.shape[0]],
+])
+```
+
+This resulted in the following source and destination points:
+
+| Source        | Destination   | 
+|:-------------:|:-------------:| 
+| 190, 720      | 320, 720      | 
+| 550, 480      | 320, 0        |
+| 735, 480      | 960, 0        |
+| 1120, 720     | 960, 720      |
+
+I verified that my perspective transform was working as expected by drawing the `src` and `dst` points onto a test image and its warped counterpart to verify that the lines appear parallel in the warped image.
+
+![alt text][warped_image]
+
+#### 4. Have lane line pixels been identified in the rectified image and fit with a polynomial?
+
+The code for the polynomial fit resides in the "Fit lane line pixels with a polynomial" section of the iPython notebook. Then, the code for finding lane lines (both through sliding windows, and using the previous polynomial) is in the next section, "Lane line pixels detection".
+
+The code is then tested below in the "Steps so far" section, where I plotted the different transformations and the lane lines found through sliding windows and using the polynomial history. The following is an example of the polynomial found using the polynomial history:
+
+```python
+img, left_line, right_line = lane_line_pixels_detection(binary_image, left_line, right_line, display_poly=True)
+plt.imshow(img)
+```
+
+![alt text][polyfit]
+
+#### 5. Having identified the lane lines, has the radius of curvature of the road been estimated? And the position of the vehicle with respect to center in the lane?
+
+In section "Radius of curvature" of the iPython notebook there's a call to measure the radius of curvature of the "test_images/test1.jpg" image. The implementation of this formula has been done as a method of the Line class which can be found in the beginning of the "Fit lane line pixels with a polynomial" section.
+
+As regards the position of the vehicle with respecto to center in the lane, it has been implemented in the "Measure distance from lane centre" section of the iPython notebook.
+
+Examples can be observed along with the projected images in the next section.
+
+#### 6. Has the result from lane line detection been warped back to the original image space and displayed?
+
+I implemented this step in the code cell in the "Project the measurement back down onto the road" section of the iPython notebook, and the it has been called in the following section "Pipeline projected". The following are examples of these computations over different test images:
+![alt text][projected_radius_and_position_test1]
+![alt text][projected_radius_and_position_test2]
+![alt text][projected_radius_and_position_test3]
+![alt text][projected_radius_and_position_test4]
+![alt text][projected_radius_and_position_test5]
+![alt text][projected_radius_and_position_test6]
+![alt text][projected_radius_and_position_test7]
+![alt text][projected_radius_and_position_test8]
+
+---
+
+### Pipeline (video)
+
+#### 1. Provide a link to your final video output.  Your pipeline should perform reasonably well on the entire project video (wobbly lines are ok but no catastrophic failures that would cause the car to drive off the road!).
+
+Here's a [link to my video result](./project_video.mp4)
+
+---
+
+### Discussion
+
+Here I'll talk about the approach I took, what techniques I used, where the pipeline might fail and how I might improve it if I were going to pursue this project further.  
+
+In the first frame iteration, the algorithm finds lane lines using the slidding windows approach since it has no knowledge about the location of the lines. After that, it uses information of the polynomials of the last n frames to find lane lines in a more efficient way than the former approach. 
+
+For each iteration, if the fitted polynomial has a significant deviation from the mean of the last n polynomials, it means that the line has not been successfully detected and therefore this polynomial is not taken into account in the line's history. It may also happen that, in anomalous situations, no line is detected in k successive frames. If that is the case, then the line object is reseted and thus the following frame will find lane lines using the initial approach, i.e., with slidding windows.
+
+The pipeline might fail in situations like the challengue video, where the lane consists of not only different pavement colors but also different pavement saturation and light conditions for a considerable amount of time. 
+
+If I were going to pursue this project further, I would try to find the best accuracy of the deviation measurement and the optimal number of frames to keep in the history of the line. Also, using more color channels to cover the situations illustrated in the challenge video.
