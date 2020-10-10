@@ -1,4 +1,4 @@
-## CarND-Advanced-Lane-Lines writeup
+# CarND-Advanced-Lane-Lines writeup
 
 ---
 
@@ -30,7 +30,9 @@ The goals / steps of this project are the following:
 [projected_radius_and_position_test6]: ./output_images/test4.jpg
 [projected_radius_and_position_test7]: ./output_images/test5.jpg
 [projected_radius_and_position_test8]: ./output_images/test6.jpg
-[video1]: ./project_video.mp4 "Video"
+[video1]: ./test_videos/project_video.mp4 "Video"
+[project_video_straight]: ./test_videos/project_video_straight.gif
+[project_video_curve]: ./test_videos/project_video_curve.gif
 
 ## [Rubric](https://review.udacity.com/#!/rubrics/571/view) Points
 
@@ -50,7 +52,7 @@ I then used the output `obj_points` and `img_points` to compute the camera calib
 
 ### Pipeline (single images)
 
-#### 1. Has the distortion correction been correctly applied to each image?
+#### Distortion correction
 
 To demonstrate this step, I will describe how I apply the distortion correction to one of the test images like this one:
 ![alt text][calibration_image_2]
@@ -60,13 +62,13 @@ The code to undistort an image is wrapped in a function called `undistort` and i
 
 Where `img` is the result of `img = plt.imread('test_images/test1.jpg')`.
 
-#### 2. Has a binary image been created using color transforms, gradients or other methods?
+#### Binary image using using color transforms and gradients
 
 The code for the binary transformation is in the section "Thresholded binary image" of the iPython notebook. For this, I used a combination of color and gradient thresholds to generate a binary image. In particular, I applied a threshold on the saturation channel of the image in HLS and a threshold on the sobel operator in the x direction.  Here's an example of my output for this step:
 
 ![alt text][thresholded_image]
 
-#### 3. Has a perspective transform been applied to rectify the image?
+#### Perspective transform to rectify the image
 
 Similarly to the previous sections, the code for the perspective transform is in its respective section, the "Perspective transform" section of the iPython notebook. 
 
@@ -105,7 +107,7 @@ I verified that my perspective transform was working as expected by drawing the 
 
 ![alt text][warped_image]
 
-#### 4. Have lane line pixels been identified in the rectified image and fit with a polynomial?
+#### Identify lane line pixels and fit with a polynomial
 
 The code for the polynomial fit resides in the "Fit lane line pixels with a polynomial" section of the iPython notebook. Then, the code for finding lane lines (both through sliding windows, and using the previous polynomial) is in the next section, "Lane line pixels detection".
 
@@ -118,7 +120,7 @@ plt.imshow(img)
 
 ![alt text][polyfit]
 
-#### 5. Having identified the lane lines, has the radius of curvature of the road been estimated? And the position of the vehicle with respect to center in the lane?
+#### Estimate the radius of curvature of the road and the position of the vehicle with respect to center in the lane
 
 In section "Radius of curvature" of the iPython notebook there's a call to measure the radius of curvature of the "test_images/test1.jpg" image. The implementation of this formula has been done as a method of the Line class which can be found in the beginning of the "Fit lane line pixels with a polynomial" section.
 
@@ -126,7 +128,7 @@ As regards the position of the vehicle with respecto to center in the lane, it h
 
 Examples can be observed along with the projected images in the next section.
 
-#### 6. Has the result from lane line detection been warped back to the original image space and displayed?
+#### Warp back the lane line detection to the original image space
 
 I implemented this step in the code cell in the "Project the measurement back down onto the road" section of the iPython notebook, and the it has been called in the following section "Pipeline projected". The following are examples of these computations over different test images:
 ![alt text][projected_radius_and_position_test1]
@@ -142,15 +144,13 @@ I implemented this step in the code cell in the "Project the measurement back do
 
 ### Pipeline (video)
 
-#### 1. Provide a link to your final video output.  Your pipeline should perform reasonably well on the entire project video (wobbly lines are ok but no catastrophic failures that would cause the car to drive off the road!).
+Here's a [link to the full video result](./project_video.mp4). 
 
-Here's a [link to my video result](./project_video.mp4)
+[project_video_straight]
 
 ---
 
 ### Discussion
-
-Here I'll talk about the approach I took, what techniques I used, where the pipeline might fail and how I might improve it if I were going to pursue this project further.  
 
 In the first frame iteration, the algorithm finds lane lines using the slidding windows approach since it has no knowledge about the location of the lines. After that, it uses information of the polynomials of the last n frames to find lane lines in a more efficient way than the former approach. 
 
