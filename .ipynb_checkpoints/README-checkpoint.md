@@ -131,14 +131,20 @@ Examples can be observed along with the projected images in the next section.
 #### Warp back the lane line detection to the original image space
 
 I implemented this step in the code cell in the "Project the measurement back down onto the road" section of the iPython notebook, and the it has been called in the following section "Pipeline projected". The following are examples of these computations over different test images:
-![alt text][projected_radius_and_position_test1]
-![alt text][projected_radius_and_position_test2]
-![alt text][projected_radius_and_position_test3]
-![alt text][projected_radius_and_position_test4]
-![alt text][projected_radius_and_position_test5]
-![alt text][projected_radius_and_position_test6]
-![alt text][projected_radius_and_position_test7]
-![alt text][projected_radius_and_position_test8]
+
+Straight lines 1           |  Straight lines 2
+:-------------------------:|:-------------------------:
+![alt text][projected_radius_and_position_test1]  |  ![alt text][projected_radius_and_position_test2]
+
+
+Test 1           |  Test 2           |   Test 3          
+:-------------------------:|:-------------------------:|:-------------------------:
+![alt text][projected_radius_and_position_test3]  |  ![alt text][projected_radius_and_position_test4]  |  ![alt text][projected_radius_and_position_test5]
+
+
+Test 4           |  Test 5           |   Test 6          
+:-------------------------:|:-------------------------:|:-------------------------:
+![alt text][projected_radius_and_position_test6]  |  ![alt text][projected_radius_and_position_test7]  |  ![alt text][projected_radius_and_position_test8]
 
 ---
 
