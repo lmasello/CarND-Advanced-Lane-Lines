@@ -144,10 +144,11 @@ I implemented this step in the code cell in the "Project the measurement back do
 
 ### Pipeline (video)
 
-Here's a [link to the full video result](./project_video.mp4). 
+Here's a [link to the full video result][video1]. 
 
-[project_video_straight]
-
+You can also have a preview of the full video watching the following gifs:
+- [Advanced lane finding in a straight road][project_video_straight]
+- [Advanced lane finding in curves][project_video_curves]
 ---
 
 ### Discussion
