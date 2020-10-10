@@ -42,7 +42,7 @@ In this section, I will consider the rubric points individually and describe how
 
 ### Camera Calibration
 
-The code for this step is contained in the first code cell of the IPython notebook located in "./advanced_lane_lines.ipynb", section "Camera calibration matrix and distortion coefficients".  
+The code for this step is contained in the first code cell of the [IPython notebook](advanced_lane_lines.ipynb) located in "./advanced_lane_lines.ipynb", section "Camera calibration matrix and distortion coefficients".  
 
 I started by preparing the "object subspace", which is the (x, y, z) coordinates of the chessboard corners in the world. Here I am assuming the chessboard is fixed on the (x, y) plane at z=0, such that the object points are the same for each calibration image. Every time the library found the chessboard corners in a test image, the object coordinates (i.e., `obj_subspace`) were appended to an array of coordinates called `obj_points`. Furthermore, the (x, y) pixel position of these corners were appended to the 2d points in the image plane, `img_points`. This step has been done with 20 calibration images to achieve good calibration results.
 
