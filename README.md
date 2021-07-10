@@ -35,8 +35,10 @@ The project consists of the following steps:
 [project_video_straight]: ./test_videos/project_video_straight.gif
 [project_video_curve]: ./test_videos/project_video_curve.gif
 
-The following animations show examples of the lane detection and tracking on straight (left) and curve (right) road sections. 
+The following animations show examples of the lane detection and tracking on straight and curve road sections:
+
 ![Lane detection on a straight road section][project_video_straight]
+
 ![Lane detection on a curve road section][project_video_curve]
 
 ---
