@@ -43,7 +43,7 @@ The following animations show examples of the lane detection and tracking on str
 
 ---
 ## Implementation
-This section describes each of the steps mentioned above according to the list of [Rubic]((https://review.udacity.com/#!/rubrics/571/view)) points required to pass the project. 
+This section describes each of the steps mentioned above according to the list of [Rubic](https://review.udacity.com/#!/rubrics/571/view) points required to pass the project. 
 
 ### Camera Calibration
 The code for this step is contained in the first code cell of the [IPython notebook](advanced_lane_lines.ipynb) located in "./advanced_lane_lines.ipynb", section "Camera calibration matrix and distortion coefficients".  
