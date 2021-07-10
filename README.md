@@ -1,19 +1,20 @@
-# CarND-Advanced-Lane-Lines writeup
+# Advanced Lane Finding Project
+
+[![Udacity - Self-Driving Car NanoDegree - Advanced Lane Finding Project](https://s3.amazonaws.com/udacity-sdc/github/shield-carnd.svg)](http://www.udacity.com/drive)
+
+The main goal of this project is to identify the lane boundaries in a video from a front-facing camera on a car.
 
 ---
+The project consists of the following steps:
 
-**Advanced Lane Finding Project**
-
-The goals / steps of this project are the following:
-
-* Compute the camera calibration matrix and distortion coefficients given a set of chessboard images.
-* Apply a distortion correction to raw images.
-* Use color transforms, gradients, etc., to create a thresholded binary image.
-* Apply a perspective transform to rectify binary image ("birds-eye view").
-* Detect lane pixels and fit to find the lane boundary.
-* Determine the curvature of the lane and vehicle position with respect to center.
+* Compute the vehicle's camera calibration matrix and distortion coefficients given a set of chessboard images.
+* Fix the distortion of the vehicle's recorded images applying a distortion correction to them.
+* Create thresholded binary images using transforms (e.g., color transforms, gradients).
+* Rectify binary images applying a perspective transform (i.e., "birds-eye view").
+* Detect lane pixels and find the lane boundary.
+* Determine the curvature of the lane and vehicle position with respect to the lane's centre.
 * Warp the detected lane boundaries back onto the original image.
-* Output visual display of the lane boundaries and numerical estimation of lane curvature and vehicle position.
+* Display the lane boundaries and numerical estimations of lane curvature and vehicle position.
 
 [//]: # (Image References)
 
@@ -34,14 +35,15 @@ The goals / steps of this project are the following:
 [project_video_straight]: ./test_videos/project_video_straight.gif
 [project_video_curve]: ./test_videos/project_video_curve.gif
 
-## [Project Rubric](https://review.udacity.com/#!/rubrics/571/view) Points
-
-In this section, I will consider the rubric points individually and describe how I addressed each point in this implementation.  
+The following animations show examples of the lane detection and tracking on straight (left) and curve (right) road sections. 
+![Lane detection on a straight road section][project_video_straight]
+![Lane detection on a curve road section][project_video_curve]
 
 ---
+## Implementation
+This section describes each of the steps mentioned above according to the list of [Rubic]((https://review.udacity.com/#!/rubrics/571/view)) points required to pass the project. 
 
 ### Camera Calibration
-
 The code for this step is contained in the first code cell of the [IPython notebook](advanced_lane_lines.ipynb) located in "./advanced_lane_lines.ipynb", section "Camera calibration matrix and distortion coefficients".  
 
 I started by preparing the "object subspace", which is the (x, y, z) coordinates of the chessboard corners in the world. Here I am assuming the chessboard is fixed on the (x, y) plane at z=0, such that the object points are the same for each calibration image. Every time the library found the chessboard corners in a test image, the object coordinates (i.e., `obj_subspace`) were appended to an array of coordinates called `obj_points`. Furthermore, the (x, y) pixel position of these corners were appended to the 2d points in the image plane, `img_points`. This step has been done with 20 calibration images to achieve good calibration results.
@@ -51,9 +53,7 @@ I then used the output `obj_points` and `img_points` to compute the camera calib
 ![alt text][calibration_image_1]
 
 ### Pipeline (single images)
-
 #### Distortion correction
-
 To demonstrate this step, I will describe how I apply the distortion correction to one of the test images like this one:
 ![alt text][calibration_image_2]
 
@@ -63,13 +63,11 @@ The code to undistort an image is wrapped in a function called `undistort` and i
 Where `img` is the result of `img = plt.imread('test_images/test1.jpg')`.
 
 #### Binary image using using color transforms and gradients
-
 The code for the binary transformation is in the section "Thresholded binary image" of the iPython notebook. For this, I used a combination of color and gradient thresholds to generate a binary image. In particular, I applied a threshold on the saturation channel of the image in HLS and a threshold on the sobel operator in the x direction.  Here's an example of my output for this step:
 
 ![alt text][thresholded_image]
 
 #### Perspective transform to rectify the image
-
 Similarly to the previous sections, the code for the perspective transform is in its respective section, the "Perspective transform" section of the iPython notebook. 
 
 The code basically consists of a function called `warper()` that takes an image, source, and destination points, and returns the warped image. To select the source and destination points, I followed the steps below:
@@ -108,7 +106,6 @@ I verified that my perspective transform was working as expected by drawing the 
 ![alt text][warped_image]
 
 #### Identify lane line pixels and fit with a polynomial
-
 The code for the polynomial fit resides in the "Fit lane line pixels with a polynomial" section of the iPython notebook. Then, the code for finding lane lines (both through sliding windows, and using the previous polynomial) is in the next section, "Lane line pixels detection".
 
 The code is then tested below in the "Steps so far" section, where I plotted the different transformations and the lane lines found through sliding windows and using the polynomial history. The following is an example of the polynomial found using the polynomial history:
@@ -121,7 +118,6 @@ plt.imshow(img)
 ![alt text][polyfit]
 
 #### Estimate the radius of curvature of the road and the position of the vehicle with respect to center in the lane
-
 In section "Radius of curvature" of the iPython notebook there's a call to measure the radius of curvature of the "test_images/test1.jpg" image. The implementation of this formula has been done as a method of the Line class which can be found in the beginning of the "Fit lane line pixels with a polynomial" section.
 
 As regards the position of the vehicle with respecto to center in the lane, it has been implemented in the "Measure distance from lane centre" section of the iPython notebook.
@@ -129,7 +125,6 @@ As regards the position of the vehicle with respecto to center in the lane, it h
 Examples can be observed along with the projected images in the next section.
 
 #### Warp back the lane line detection to the original image space
-
 I implemented this step in the code cell in the "Project the measurement back down onto the road" section of the iPython notebook, and the it has been called in the following section "Pipeline projected". The following are examples of these computations over different test images:
 
 Straight lines 1           |  Straight lines 2
@@ -149,7 +144,6 @@ Test 4           |  Test 5           |   Test 6
 ---
 
 ### Pipeline (video)
-
 Here's a [link to the full video result][video1]. 
 
 You can also have a preview of the full video watching the following gifs:
@@ -158,7 +152,6 @@ You can also have a preview of the full video watching the following gifs:
 ---
 
 ### Discussion
-
 In the first frame iteration, the algorithm finds lane lines using the slidding windows approach since it has no knowledge about the location of the lines. After that, it uses information of the polynomials of the last n frames to find lane lines in a more efficient way than the former approach. 
 
 For each iteration, if the fitted polynomial has a significant deviation from the mean of the last n polynomials, it means that the line has not been successfully detected and therefore this polynomial is not taken into account in the line's history. It may also happen that, in anomalous situations, no line is detected in k successive frames. If that is the case, then the line object is reseted and thus the following frame will find lane lines using the initial approach, i.e., with slidding windows.
